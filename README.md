@@ -30,9 +30,9 @@ docker-compose exec backend python manage.py createsuperuser
 
 ## Доступ к приложению
 
-- **API**: http://localhost/api/v1/
-- **Admin**: http://localhost/admin/
-- **Health Check**: http://localhost/health/
+- **API**: http://localhost:8080/api/v1/
+- **Admin**: http://localhost:8080/admin/
+- **Health Check**: http://localhost:8080/health/
 
 ## Основные команды
 
