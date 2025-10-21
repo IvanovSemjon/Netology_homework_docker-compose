@@ -1,72 +1,77 @@
-# Django Stocks API - Docker
+# Django Stocks API - Docker Compose
 
-REST API сервер для управления складами и запасами товаров.
+REST API для управления складами и запасами товаров с использованием Docker Compose.
 
-## Требования
+## Архитектура
 
-- Docker
-- Docker Compose (опционально)
+- **Backend**: Django + Gunicorn
+- **Database**: PostgreSQL 15
+- **Proxy**: Nginx
+- **Network**: Изолированная Docker сеть
 
-## Быстрый старт
+## Быстрый запуск
 
-### 1. Сборка образа
+### 1. Подготовка окружения
 ```bash
-docker build -t django-stocks-api .
+# Скопировать и настроить переменные окружения
+cp .env.example .env
+# Изменить SECRET_KEY и DB_PASSWORD в .env
 ```
 
-### 2. Запуск миграций
+### 2. Запуск всех сервисов
 ```bash
-docker run --rm --env-file .env django-stocks-api python manage.py migrate
+docker-compose up --build -d
 ```
 
-### 3. Создание суперпользователя (опционально)
+### 3. Создание суперпользователя
 ```bash
-docker run -it --rm --env-file .env django-stocks-api python manage.py createsuperuser
+docker-compose exec backend python manage.py createsuperuser
 ```
 
-### 4. Запуск сервера
-```bash
-# Запуск в фоновом режиме на порту 8001
-docker run -d -p 8001:8000 --env-file .env --name django-api django-stocks-api
+## Доступ к приложению
 
-# Или запуск в интерактивном режиме
-docker run -p 8001:8000 --env-file .env --name django-api django-stocks-api
-```
+- **API**: http://localhost/api/v1/
+- **Admin**: http://localhost/admin/
+- **Health Check**: http://localhost/health/
 
-## Управление контейнером
+## Основные команды
 
 ```bash
 # Просмотр логов
-docker logs django-api
+docker-compose logs -f
 
-# Остановка контейнера
-docker stop django-api
-
-# Удаление контейнера
-docker rm django-api
+# Остановка
+docker-compose down
 
 # Перезапуск
-docker restart django-api
+docker-compose restart
+
+# Выполнение команд Django
+docker-compose exec backend python manage.py <command>
 ```
 
-## Тестирование API
+## API Endpoints
 
-После запуска API будет доступен по адресу: http://localhost:8001
-
-### Основные эндпоинты:
 - `GET /api/v1/products/` - список товаров
 - `POST /api/v1/products/` - создание товара
 - `GET /api/v1/stocks/` - список складов
 - `POST /api/v1/stocks/` - создание склада
 
-### Примеры запросов в файле:
-`requests-examples.http`
+## Security Features
 
-## Переменные окружения
+- Non-root пользователи в контейнерах
+- Read-only файловые системы
+- Security headers в Nginx
+- Rate limiting
+- Изолированная сеть
+- Health checks
 
-Основные переменные в файле `.env`:
-- `SECRET_KEY` - секретный ключ Django
-- `DEBUG` - режим отладки (True/False)
-- `DB_ENGINE` - движок БД (sqlite3)
-- `DB_NAME` - имя файла БД
-- `ALLOWED_HOSTS` - разрешенные хосты
+## Структура проекта
+
+```
+├── docker-compose.yml    # Конфигурация сервисов
+├── Dockerfile           # Образ Django приложения
+├── nginx.conf          # Конфигурация Nginx
+├── .env.example        # Пример переменных окружения
+└── requirements.txt    # Python зависимости
+```
